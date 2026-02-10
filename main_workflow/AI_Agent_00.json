@@ -1,0 +1,321 @@
+{
+  "name": "AI_Agent_00",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "95159d87-5cf2-4091-a4b0-e34045009fcd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -576,
+        -32
+      ],
+      "id": "a71fe6cc-d644-459b-a8ed-bdfa0722f063",
+      "name": "Webhook",
+      "webhookId": "95159d87-5cf2-4091-a4b0-e34045009fcd"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.article_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "=MyN8nBot/1.0  ({{ $json.body.email }})"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        -32
+      ],
+      "id": "ad70035b-4386-4f7c-b724-08e026e440a0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=System Prompt\nYou are an expert Content Analyst and Automation Assistant. Your goal is to process article text, generate high-quality summaries and insights, and then use your tools to save this data and notify the user.\n\nYour operational workflow:\n\nAnalyze: Read the article text provided.\n\nSummarize: Create a 3-5 sentence summary focusing on the \"Why\" and \"How.\"\n\nExtract Insights: Identify 3-5 actionable key takeaways.\n\nRecord: Use the Google Sheets Tool to save the Session ID, URL, Email, Summary, and Insights.\n\nNotify: Use the Gmail Tool to send the summary and insights to the user's email address.\n\nUser Prompt\nPlease process the following article data:\n\nArticle Content: {{ $json.data.content }}\n\nUser Email: {{ $('Webhook').item.json.body.email }}\n\nSession ID: {{ $('Webhook').item.json.body.session_id }}\n\nArticle URL: {{ $('Webhook').item.json.body.article_url }}\n\nTask Instructions:\n\nSummary: Write a professional 3-5 sentence summary. Do not start with \"This article is about.\"\n\nInsights: Provide 3-5 bullet points of unique facts or strategic takeaways.\n Instruction: \"List the insights as a Markdown bulleted list\".\n Constraint: \"Ensure each bullet point starts on a new line\".\n Symbol: \"Use an asterisk (*) or a hyphen (-) for each point\".\n\nSheet Update: Ensure the 'Summary' and 'Insights' columns in the Google Sheet are populated with your generated text.\n\nEmail: Send a clean, formatted email to the user with these results.",
+        "options": {
+          "systemMessage": "summarize this data and update it in the sheets summary section and gives "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -16,
+        -32
+      ],
+      "id": "0ddc0939-0a78-47d5-a671-02302e369239",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        192
+      ],
+      "id": "fad04b07-5828-4a62-a5db-65ed1066803e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "a7buj7ZAsYojNOFd",
+          "name": "OpenAi account 170"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "16hH_nu8CU5wvbXCtTrsCcFewfb7BFje-r691nVGNC6M",
+          "mode": "list",
+          "cachedResultName": "[Mod 14] Project: AI Agent Project with n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16hH_nu8CU5wvbXCtTrsCcFewfb7BFje-r691nVGNC6M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16hH_nu8CU5wvbXCtTrsCcFewfb7BFje-r691nVGNC6M/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Session ID": "={{ $('Webhook').item.json.body.session_id }}",
+            "Article URL": "={{ $('Webhook').item.json.body.article_url }}",
+            "Email": "={{ $('Webhook').item.json.body.email }}",
+            "Summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+            "Insights": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Insights', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Session ID"
+          ],
+          "schema": [
+            {
+              "id": "Session ID",
+              "displayName": "Session ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Article URL",
+              "displayName": "Article URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Insights",
+              "displayName": "Insights",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        192
+      ],
+      "id": "44beebf6-e6f2-4632-80a5-4415ad14c56c",
+      "name": "Append or update row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uuFGohWKHY7t3wFO",
+          "name": "Google Sheets account 306"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "=<h2>Article Analysis Report</h2> <p>Hello,</p> <p>Here is the breakdown of the article you requested:</p>  <hr>  <h3>📌 Summary</h3> <p>{{ $fromAI('Summary', 'A 3-5 sentence overview of the article content.', 'string') }}</p>  <h3>💡 Key Insights</h3> <ul>   {{ $fromAI('Insights', 'A list of 3-5 bullet points representing key takeaways.', 'string') }} </ul>  <hr> <p><i>Best regards,<br>Automation Assistant</i></p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        192
+      ],
+      "id": "17b490ba-f935-4edc-8d56-fadef145b543",
+      "name": "Send a message in Gmail",
+      "webhookId": "7a7b8037-fe1c-4008-a8f3-b2580b62997b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9MhOpo1gEZ6gdVbp",
+          "name": "Gmail account 250"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        384,
+        -32
+      ],
+      "id": "00d469e8-2256-409b-aa6a-567708248f55",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.session_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        176
+      ],
+      "id": "a3291e04-fdf1-4160-91f2-b01ed058a3f1",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1e27e30d-570b-44a2-8f0e-3dba318daf2e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "50918ee0be4fd9ad8edd59da0eb4c4a6502c186d6a425a1cf635ba824838446e"
+  },
+  "id": "gPcWq6OhfnWbiyUi",
+  "tags": []
+}
